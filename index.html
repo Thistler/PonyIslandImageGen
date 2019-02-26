@@ -1,0 +1,498 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="default.css" media="screen">
+<link rel='stylesheet' href='spectrum.css' />
+<title>PI Image Generator</title>
+
+
+<script type="text/javascript" src="scripts/init.js?version=1.1.5"></script>
+<script type="text/javascript" src="scripts/dropdowns.js?version=1.1.5"></script>
+<script type="text/javascript" src="scripts/update_data.js?version=1.1.5"></script>
+<script type="text/javascript" src="scripts/randomizer.js?version=1.1.5"></script>
+<script type="text/javascript" src="scripts/url_converter.js?version=1.1.5"></script>
+<script type="text/javascript" src="scripts/jquery-3.2.1.min.js?version=1.1.5"></script>
+<script type="text/javascript" src='scripts/spectrum.js?version=1.1.5'></script>
+
+<script>
+
+var str_eyecolor = 'ffffff';
+var str_hair1color = 'ffffff';
+var str_hair2color = 'ffffff';
+var str_bodycolor = 'ffffff';
+var str_extra1color = 'ffffff';
+var str_extra1color = 'ffffff';
+
+var int_imNumber = 1;
+
+$(document).ready(function (){
+	$(".basic").spectrum({
+    	color: "#ffffff",
+    	showInput: true,
+    	showInitial: true,
+    	showButtons: false,
+    	clickoutFiresChange: true,
+    	preferredFormat: "hex",
+    	change: function(color)
+    	{
+    		$("#" + this.id + "text").text(color.toHexString().slice(1));
+    		updateColorVars();
+    	}
+	});
+
+	$(".basic").on("dragstop.spectrum", function(e, color) {
+    	$("#" + this.id + "text").text(color.toHexString().slice(1));
+    	updateColorVars();
+    })
+});
+
+var u = setInterval(setup, 1);
+
+var arrBreeds;
+var arrAddedBreeds;
+
+var arrSgenes;
+var arrAddedSgenes;
+
+var arrNonBrsBodyGenes;
+
+var activeView = 'basicgen_btn';
+
+function updateColorVars()
+{
+	str_eyecolor = $("#eyecolortext").text();
+	str_hair1color = $("#hair1colortext").text();
+	str_hair2color = $("#hair2colortext").text();
+	str_bodycolor = $("#bodycolortext").text();
+	str_extra1color = $("#extra1colortext").text();
+	str_extra2color = $("#extra2colortext").text();
+}
+
+function switchView(arg)
+{
+  	view = this.id;
+
+  	if(view != activeView)
+  	{
+  		document.getElementById("basic_gen_content").style.display = 'none';
+  		document.getElementById("add_data").style.display = 'none';
+  		document.getElementById("url_converter_panel").style.display = 'none';
+  		document.getElementById("update_panel").style.display = 'none';
+  		document.getElementById("help_panel").style.display = 'none';
+
+  		document.getElementById(activeView).style.background = '#222222';
+
+		if (view == 'basicgen_btn')
+		{
+			document.getElementById("basic_gen_content").style.display = 'block';
+		}
+		else if (view == 'adddata_btn')
+		{
+			document.getElementById("add_data").style.display = 'block';
+		}
+		else if (view == 'url_converter_btn')
+		{
+			document.getElementById("url_converter_panel").style.display = 'block';
+		}
+		else if (view == 'updates_btn')
+		{
+			document.getElementById("update_panel").style.display = 'block';
+		}
+		else if (view == 'help_btn')
+		{
+			document.getElementById("help_panel").style.display = 'block';
+		}
+		activeView = view;
+		document.getElementById(activeView).style.background = '#737373';
+	}
+}
+
+function generateURL(form)
+{
+	int_imNumber++;
+	if(int_imNumber >= 5)
+	{
+		int_imNumber = 1;
+	}
+
+	var size = form.imgsize.value;
+	var breed = form.breed_dropdown.value;
+	var gender = form.gender.value;
+
+	var colors = str_eyecolor + "|" 
+		+ str_hair1color + "|"
+		+ str_hair2color + "|"
+		+ str_bodycolor + "|"
+		+ str_extra1color + "|"
+		+ str_extra2color;
+	var age = form.age.value;
+
+	//Get sgenes
+	var sgenes = "";
+	//Hair
+	sgenes += form.hair_dropdown.value;
+	//Body
+	sgenes += "|" + form.body_dropdown.value;
+	if (form.bodycolorize2.checked) sgenes += "|17";
+	else if (form.bodycolorize3.checked) sgenes += "|51"
+	//Legs
+	sgenes += "|" + form.leg_dropdown.value;
+	if (form.legcolorize2.checked) sgenes += "|22";
+	else if (form.legcolorize3.checked) sgenes += "|52"
+	//Face
+	sgenes += "|" + form.face_dropdown.value;
+	if (form.facecolorize2.checked) sgenes += "|34";
+	else if (form.facecolorize3.checked) sgenes += "|53"
+
+	//Put it all together
+	var newURL = "http://im" + int_imNumber + ".ponyisland.net/?img=pony&gender=" + gender + "&breed=" + breed + "&colors=" + colors + "&genes=" + sgenes + "&size=" + size + "&state=" + age + "&greygen";
+
+ 	document.getElementById("ponyimg").src = newURL;
+ 	document.getElementById("ponyurl").value = newURL;
+}
+</script>
+
+</head>
+
+<body>
+
+<div id="nav_header">
+    <div id="header_title">GreySky Gen</div>
+    <div id="nav_buttons">
+	    <div id="basicgen_btn" class="button">Generator</div>
+	    <div id="adddata_btn" class="button">Add Genes/Breeds</div>
+	    <div id="url_converter_btn" class="button">URL Converter</div>
+	    <div id="updates_btn" class="button">Update Log</div>
+	    <div id="help_btn" class="button">Help/FAQ</div>
+	</div>
+</div>
+
+<div id="main_content">
+	<div id="basic_gen_content">
+		<form name='basic_img_gen' id='basic_img_gen' action='javascript:generateURL()' method='post'>
+			<div class="form_box">
+				<table>
+					<tr><td>Image Size:</td><td><input type='text' name='imgsize' value='350'></td></tr>
+				</table>
+			</div>
+			<div class='form_box'>
+				<table class='alternating_table'>
+					<col width="50">
+					<col width="120">
+					<tr>
+						<td>Age:</td>
+						<td>
+							<select name='age'>
+							<option value='a'>Adult</option>
+							<option value='baby'>Baby</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>Gender:</td>
+						<td>
+							<select id='gender' name='gender'>
+							<option value='male'>Male</option>
+							<option value='female'>Female</option>
+							</select>
+						</td>
+						<td>
+							<img src='lock.png'>
+							<input type='checkbox' id='genderlock' name='genderlock' value=''>
+						</td>
+					</tr>
+					<tr>
+						<td>Breed:</td>
+						<td>
+							<select id='breed_dropdown' name='breed_dropdown'></select>
+						</td>
+						<td>
+							<img src='lock.png'>
+							<input type='checkbox' id='breedlock' name='breedlock' value=''>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class='form_box'>
+				<table>
+					<col width="100">
+					<col width="100">
+					<col width="100">
+					<col width="100">
+					<col width="100">
+					<tr class='darkrow'>
+						<td>Hair Sgene:</td>
+						<td><select id='hair_dropdown' name='hair_dropdown'></select></td>
+						<td></td>
+						<td><img src='lock.png'><input type='checkbox' id='hairsgenelock' name='hairsgenelock' value=''></td>
+					</tr>
+					<tr class='lightrow'>
+						<td>Body Sgene:</td>
+						<td><select id='body_dropdown' name='body_dropdown'></select></td>
+						<td></td>
+						<td><img src='lock.png'><input type='checkbox' id='bodysgenelock' name='bodysgenelock' value=''></td>
+					</tr>
+					<tr class='lightrow'>
+						<td><input type='radio' id='bodycolorize1' name='bodycolorize' value='none' checked='checked'>None</td>
+						<td><input type='radio' id='bodycolorize2' name='bodycolorize' value='color'>Colorize</td>
+						<td><input type='radio' id='bodycolorize3' name='bodycolorize' value='revcolor'>Reverse</td>
+						<td><img src='lock.png'><input type='checkbox' id='bodycolorizelock' name='bodycolorizelock' value=''></td>
+					</tr>
+					<tr class='darkrow'>
+						<td>Leg Sgene:</td>
+						<td><select id='leg_dropdown' name='leg_dropdown'></select></td>
+						<td></td>
+						<td><img src='lock.png'><input type='checkbox' id='legsgenelock' name='legsgenelock' value=''></td>
+					</tr>
+					<tr class='darkrow'>
+						<td><input type='radio' id='legcolorize1' name='legcolorize' value='none' checked='checked'>None</td>
+						<td><input type='radio' id='legcolorize2' name='legcolorize' value='color'>Colorize</td>
+						<td><input type='radio' id='legcolorize3' name='legcolorize' value='revcolor'>Reverse</td>
+						<td><img src='lock.png'><input type='checkbox' id='legcolorizelock' name='legcolorizelock' value=''></td>
+					</tr>
+					<tr class='lightrow'>
+						<td>Face Sgene:</td>
+						<td><select id='face_dropdown' name='face_dropdown'></select></td>
+						<td></td>
+						<td><img src='lock.png'><input type='checkbox' id='facesgenelock' name='facegenelock' value=''></td>
+					</tr>
+					<tr class='lightrow'>
+						<td><input type='radio' id='facecolorize1' name='facecolorize' value='none' checked='checked'>None</td>
+						<td><input type='radio' id='facecolorize2' name='facecolorize' value='color'>Colorize</td>
+						<td><input type='radio' id='facecolorize3' name='facecolorize' value='revcolor'>Reverse</td>
+						<td><img src='lock.png'><input type='checkbox' id='facecolorizelock' name='facecolorizelock' value=''></td>
+					</tr>
+				</table>
+			</div>
+			<div class='form_box'>
+				<table class='alternating_table'>
+					<col width="45">
+					<col width="135">
+					<col width="60">
+					<col width="135">
+					<tr>
+						<td>Eyes:</td>
+						<td><input type='text' class='basic' id='eyecolor'/><span class='colortext' id='eyecolortext'>ffffff</span></td>
+						<td><img src='lock.png'><input type='checkbox' id='eyecolorlock' name='eyecolorlock' value=''></td>
+					</tr>
+					<tr>
+						<td>Hair:</td>
+						<td><input type='text' class='basic' id='hair1color'/><span class='colortext' id='hair1colortext'>ffffff</span></td>
+						<td><img src='lock.png'><input type='checkbox' id='hair1colorlock' name='hair1colorlock' value=''></td>
+						<td><input type='text' class='basic' id='hair2color'/><span class='colortext' id='hair2colortext'>ffffff</span></td>
+						<td><img src='lock.png'><input type='checkbox' id='hair2colorlock' name='hair2colorlock' value=''></td>
+					</tr>
+					<tr>
+						<td>Body:</td>
+						<td><input type='text' class='basic' id='bodycolor'/><span class='colortext' id='bodycolortext'>ffffff</span></td>
+						<td><img src='lock.png'><input type='checkbox' id='bodycolorlock' name='bodycolorlock' value=''></td>
+					</tr>
+					<tr>
+						<td>Extra:</td>
+						<td><input type='text' class='basic' id='extra1color'/><span class='colortext' id='extra1colortext'>ffffff</span></td>
+						<td><img src='lock.png'><input type='checkbox' id='extra1colorlock' name='extra1colorlock' value=''></td>
+						<td><input type='text' class='basic' id='extra2color'/><span class='colortext' id='extra2colortext'>ffffff</span></td>
+						<td><img src='lock.png'><input type='checkbox' id='extra2colorlock' name='extra2colorlock' value=''></td>
+					</tr>
+				</table>
+			</div>
+			<div class="form_box gen_buttons">
+				<table>
+					<tr>
+						<td><input type='button' name='button' value='Update' onClick='generateURL(this.form)'></td>
+						<td><input type='button' name='button' value='Surprise Me!' onClick='surpriseMe(this.form)'></td>
+					</tr>
+				</table>
+			</div>
+			<div class="form_box">
+				<table class="rules">
+				<tr>
+					<td>
+					<b>Advanced Rules</b>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Optional extras to customize what ponies you get from the Surpise Me! button.
+					</td>
+				</tr>
+				</table>
+			</div>
+			<div class="form_box">
+				<table>
+					<tr class='darkrow'>
+						<td>Allow BrS:</td>
+						<td><input type='checkbox' id='allowbrs' name='allowbrs' value='' checked='checked'></td>
+						<td></td>
+					</tr>
+					<tr class='lightrow'>
+						<td>Limit Colors</td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr class='lightrow'>
+						<td>
+							<input type='checkbox' id='selectcolor1check' name='selectcolor1check' value=''>
+							<input type='text' class='basic' id='selectcolor1'/><span class='colortext' id='selectcolor1text'>ffffff</span>
+						</td>
+						<td>
+							<input type='checkbox' id='selectcolor2check' name='selectcolor2check' value=''>
+							<input type='text' class='basic' id='selectcolor2'/><span class='colortext' id='selectcolor2text'>ffffff</span>
+						</td>
+						<td>
+							<input type='checkbox' id='selectcolor3check' name='selectcolor3check' value=''>
+							<input type='text' class='basic' id='selectcolor3'/><span class='colortext' id='selectcolor3text'>ffffff</span>
+						</td>
+					</tr>
+					<tr class='lightrow'>
+						<td>
+							<input type='checkbox' id='selectcolor4check' name='selectcolor4check' value=''>
+							<input type='text' class='basic' id='selectcolor4'/><span class='colortext' id='selectcolor4text'>ffffff</span>
+						</td>
+						<td>
+							<input type='checkbox' id='selectcolor5check' name='selectcolor5check' value=''>
+							<input type='text' class='basic' id='selectcolor5'/><span class='colortext' id='selectcolor5text'>ffffff</span>
+						</td>
+						<td>
+							<input type='checkbox' id='selectcolor6check' name='selectcolor6check' value=''>
+							<input type='text' class='basic' id='selectcolor6'/><span class='colortext' id='selectcolor6text'>ffffff</span>
+						</td>
+					</tr>
+			    </table>
+			</div>
+		</form>
+		<div  id='result'>
+			<div class="form_box">
+				<table>
+					<tr>
+						<td>
+							<p id='disclaimer'>Images are owned by <a href="http://www.ponyisland.net">Pony Island</a> and images produced on this site are not authorized to be posted/distributed anywhere except <a href="http://www.ponyisland.net">Pony Island</a>. Authorization to post the images elsewhere must be obtained through <a href="http://www.ponyisland.net">Pony Island</a>.</p>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<img id='ponyimg' src='http://im1.ponyisland.net/?img=pony&gender=male&breed=1&colors=ffffff|ffffff|ffffff|ffffff|ffffff|ffffff&genes=&size=350&greygen' />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<input id='ponyurl' value='http://im1.ponyisland.net/?img=pony&gender=male&breed=1&colors=ffffff|ffffff|ffffff|ffffff|ffffff|ffffff&genes=&size=350&greygen'></input>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<div id="add_data">
+		<div id="local_storage_msg"></div>
+		<div id="add_data_forms">
+			<div class="form_box_table">
+				<form name='add_breed' action='javascript:addBreed()' method='post'>
+					<div class="table_header">Add Breed:</div>
+					<table>
+						<tr>
+							<td>Name:</td>
+							<td>Number:</td>
+						</tr>
+						<tr>
+							<td><input type='text' name='breed_name' value=''></td>	
+							<td><input type='text' name='breed_number' value=''></td>
+						</tr>
+						<tr>
+							<td><input type='button' name='button' value='Submit Breed' onClick='addBreed(this.form)'></td>
+						</tr>
+					</table>
+				</form>
+			</div>
+			<div class="form_box_table">
+				<form name='add_gene' action='javascript:addGene()' method='post'>
+					<div class="table_header">Add Sgene:</div>
+					<table>
+						<tr>
+							<td>Name:</td>
+							<td>Number:</td>
+							<td>Loci:</td>
+							<td>BrS:<div clas="explanation" style="font-size:12px">(0 for non-BrS, required breed # for BrS)</div></td>
+						</tr>
+						<tr>
+							<td><input type='text' name='gene_name' value=''></td>
+							<td><input type='text' name='gene_number' value=''></td>
+							<td>
+								<select id='gene_loci' name='gene_loci'>
+									<option value='body'>Body</option>
+									<option value='hair'>Hair</option>
+									<option value='leg'>Leg</option>
+									<option value='face'>Face</option>
+								</select>
+							</td>
+							<td><input type='text' name='brs_number' value='0'></td>
+						</tr>
+						<tr>
+							<td><input type='button' name='button' value='Submit Gene' onClick='addGene(this.form)'></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</div>
+		<div id="data_list"></div>
+	</div>
+
+	<div id="url_converter_panel">
+		<p>This is a tool to convert old PI urls (pre-2014) into the new url format. There is probably a 99% chance you have no use for it at this point. But here it is!</p>
+		<p>Copy the URL of the generated image to get your new image url.<p>
+
+		<form name="url_converter" action="javascript:updateURL()" method="post">
+		Old URL: <input type="text" name="inputbox">
+		<input type="button" name="button" value="Update" onClick="updateURL(this.form)">
+		</form>
+
+
+		<img id="ponyimg_converted" src="http://im1.ponyisland.net/?img=pony&gender=male&breed=1&colors=000000|000000|000000|000000|000000|000000&genes=&size=350" />
+	</div>
+
+
+	<div id="update_panel">
+		<p><span class="date">2/25/2019</span> - Added the advent genes, removed adbox, removed nav bar for test breeding. Sorry to those of you who were waiting for it. As you probably noticed, I haven't been very active on this. I haven't been active on PI. But I want the people who use this to have the option to continue to use it...so I'm putting it up on <a href="https://github.com/Thistler/PonyIslandImageGen">github</a>. You can download it to use/modify locally or upload it elsewhere if you want. I have no plans to remove it from this site but I'm also not gonna promise it'll be here forever.</p>
+		<p><span class="date">3/14/2018</span> - Added Falcon to the gen. Also made a minor tweak that will hopefully prevent you guys from having to clear your caches when I update. For real this time maybe?</p>
+		<p><span class="date">3/13/2018</span> - Minor tweak, but hopefully it helps. The short, non-technical version is that if you get a broken image, hopefully hitting update once or twice more will show the image. Now the longer version. Following the conversation on <a href="https://ponyisland.net/#!/?src=community&sub=forums&topic=3243897&page=3">this thread</a>, I saw a user remark that changing the 'im1-4' bit at the beginning of the url will sometimes unbreak broken images. I decided to set the image gen to increment this number every time a user hits update. Hopefully this will allow you guys to preview ponies on this site even when one of PI's image servers is having trouble fetching a particular asset.</p>
+		<p><span class="date">3/13/2018</span> - Added Vulpine to the gen.</p>
+		<p><span class="date">3/12/2018</span> - Added Splotches to the gen.</p>
+		<p><span class="date">12/24/2017</span> - Added some more advanced options to the randomizer. You can now filter BrS genes and select specific colors when randomizing a pony. Also some minor formatting fixes, and a fix that hopefully makes it so you don't have to do a hard refresh on the page for every update. Though it will require one for this update to clear out the previously cached files.</p>
+		<p><span class="date">12/22/2017</span> - Added options for Reverse Colorize. Took a bit of tweaking the UI and it's a bit rushed so feedback and bug reports are certainly welcome! You may need to hard refresh (ctrl+f5) to see the changes.</p>
+		<p><span class="date">12/20/2017</span> - Added Hair Splash
+		<p><span class="date">8/6/2017</span> - Minor fix to fix a bug where clicking another button while clicking off the selector failed to update the color.</p>
+		<p><span class="date">8/6/2017</span> - Added Highlights to the sgene list. Changed what color picker library we're using. This one is supposed to be mobile friendly, so hopefully all the mobile users will have an easier time of this. Color hex's are now displayed outside the color picker window to prevent accidently changing colors when trying to copypasta.</p>
+		<p><span class="date">5/30/2017</span> - Revamped the entire site to actually look good. I also added a way to manually add sgenes/breeds to the system when PI updates. This removes the need for the ?? options in the dropdowns, and is more sustainable if I ever take another leave of absence from updating this site. See the help section (yeah, we have one now) for more info on that!<p>
+	</div>
+
+
+	<div id="help_panel">
+		<div class="question">Who made all this?</div>
+		<p>The images themselves are owned and hosted by <a href="http://www.ponyisland.net">Pony Island</a>. This generator is programmed and run by <a href="https://ponyisland.net/#!/?qs=lisagreywords">LisaGreywords</a>. The color picker is a library from <a href="http://bgrins.github.io/spectrum/">Spectrum</a>.</p>
+		<div class="question">Can I use/sell these pictures on other sites?(Social media, personal blogs, etc.)</div>
+		<p>No. The images and art are owned by <a href="http://www.ponyisland.net">Pony Island</a> and used here with permission. This site is a tool to help players of Pony Island plan future breeding projects. It is not for creating adoptables/personas/characters for other sites. Only Pony Island can give permission to repost them elsewhere.</p>
+		<div class="question">What's the 'Add Breeds/Sgenes' for?</div>
+		<p>It's so users can start previewing new breeds/sgenes as soon as they're released instead of waiting for me to update this page.</p>
+		<div class="question">How do I know what number to add for the breed/sgene?</div>
+		<p>Generally it's the next number in the sequence. So, with the most recent breed being DinoPonies at #20, the next breed added will most likely be at #21. Same rule for sgenes. If that doesn't work, try the next couple numbers in the sequence. Sometimes things are released out of order.</p>
+		<div class="question">What's the BrS Breed for?</div>
+		<p>It's used for the "Allow BrS" option in the Advanced Rules for the generator.</p>
+		<div class="question">So can I use this to preview upcoming genes/breeds? =3</div>
+		<p>Haha, no, sadly not. :) PI makes sure breeds/genes are not visible in the game until they are ready. Playing around with this gen will not allow you to see them any sooner than anyone else on PI.</p>
+		<div class="question">What's the "Allow BrS" checkbox for?</div>
+		<p>It filters out Breed Specific Sgenes from the Surprise Me! function. This is to allow users who don't want to bother with cross breeding to not be shown a ton of sgene combos they're not into.</p>
+		<div class="question">What's the Limit Colors option for?</div>
+		<p>If you change a color in one or more of those boxes and check the box beside each color you change, then the Surprise Me! function will only use those colors. Select up to six colors to limit what colors the randomized pony will have.</p>
+		<div class="question">Why the ad?</div>
+		<p>I pay out of pocket to keep this site up and running, so I would like to be able to recoup some of those costs. :)</p>
+	</div>
+
+</div>
+</body>
+</html>
